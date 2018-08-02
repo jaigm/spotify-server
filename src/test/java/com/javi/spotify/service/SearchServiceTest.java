@@ -21,6 +21,9 @@ public class SearchServiceTest {
     private SearchService searchService;
 
     @Mock
+    private SaveAlbumService saveAlbumService;
+
+    @Mock
     private Search search;
 
     @Mock
@@ -28,13 +31,14 @@ public class SearchServiceTest {
 
     @Before
     public void setUp() {
-        this.searchService = new SearchService("", "");
+        this.searchService = new SearchService(this.saveAlbumService,"", "");
         this.searchService.setClientCredentialsFlow(clientCredentialsFlow);
         this.searchService.setSearch(search);
     }
 
     @Test
     public void getAlbums() {
+        Mockito.doNothing().when(saveAlbumService).saveAlbumsAsync(any());
         Mockito.when(clientCredentialsFlow.getAccessToken()).thenReturn(new AccessToken());
         Mockito.when(search.query(any(), any(), any(Class.class))).thenReturn(new SearchResult());
         SearchResult searchResult = this.searchService.getAlbums("", 1,1);

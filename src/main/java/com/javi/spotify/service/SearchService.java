@@ -19,24 +19,28 @@ public class SearchService {
 
     private AccessToken currentAccessToken; // A stored access token for re-use in calls.
 
+    private SaveAlbumService saveAlbumService;
+
     /**
      * Constructor.
      */
     public SearchService(
+        SaveAlbumService saveAlbumService,
         @Value("${spotify.client.client_id}") String clientId,
         @Value("${spotify.client.client_secret}") String clientSecret
     ) {
         RestTemplate httpClient = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
         this.clientCredentialsFlow = new ClientCredentialsFlow(httpClient, clientId, clientSecret);
         this.search = new Search(httpClient);
-    }
-
-    public void setClientCredentialsFlow(ClientCredentialsFlow clientCredentialsFlow) {
-        this.clientCredentialsFlow = clientCredentialsFlow;
+        this.saveAlbumService = saveAlbumService;
     }
 
     public void setSearch(Search search) {
         this.search = search;
+    }
+
+    public void setClientCredentialsFlow(ClientCredentialsFlow clientCredentialsFlow) {
+        this.clientCredentialsFlow = clientCredentialsFlow;
     }
 
     /**
@@ -49,7 +53,10 @@ public class SearchService {
         query.setType(QueryTypes.ALBUM);
         query.setPageAndSize(page, pageSize);
 
-        return this.search.query(query, this.getCurrentAccessToken(), SearchResult.class);
+        SearchResult searchResult = this.search.query(query, this.getCurrentAccessToken(), SearchResult.class);
+        saveAlbumService.saveAlbumsAsync(searchResult.getAlbums());
+
+        return searchResult;
     }
 
     /**

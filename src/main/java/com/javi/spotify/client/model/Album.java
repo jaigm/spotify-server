@@ -2,12 +2,14 @@ package com.javi.spotify.client.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 // todo: Separate persistence layer with the spotify model layer.
 @Data
 public class Album {
+    @Id
     @JsonProperty("id")
     private String spotifyId;
 
